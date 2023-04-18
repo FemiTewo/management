@@ -1,0 +1,21 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/GFSNeohellenic-Bold.ttf",
+      "sha1": "d93be3d96de4a510bcbf64c00906dc686112f123"
+    },
+    {
+      "path": "assets/fonts/GFSNeohellenic-BoldItalic.ttf",
+      "sha1": "ab4dc0698c7e34c290f79d7deb39f96900a5d0c0"
+    },
+    {
+      "path": "assets/fonts/GFSNeohellenic-Italic.ttf",
+      "sha1": "11b30bf0909f136d0d0785dac772294595bc9238"
+    },
+    {
+      "path": "assets/fonts/GFSNeohellenic-Regular.ttf",
+      "sha1": "e87a8366c33469e1c5a04e632054d4dd42f2b4b2"
+    }
+  ]
+}
