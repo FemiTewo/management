@@ -2,14 +2,14 @@ import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/firestore';
 
 const RNfirebaseConfig = {
-  apiKey: 'AIzaSyCi6z8ynD1BBXnq73hFRfv7njaao-AfRyU',
-  authDomain: 'fantasea-8f81a.firebaseapp.com',
-  projectId: 'fantasea-8f81a',
-  storageBucket: 'fantasea-8f81a.appspot.com',
-  messagingSenderId: '329390059305',
-  appId: '1:329390059305:web:cf4c57e2701ebd3dadd138',
-  measurementId: 'G-N87RTCHGYE',
-  databaseURL: 'https://fantasea-8f81a.firebaseio.com',
+  apiKey: 'AIzaSyB4L4QxYvoWnh4Kvwcsa3y9WXf47Z5wr7I',
+  authDomain: 'management-a0bbd.firebaseapp.com',
+  projectId: 'management-a0bbd',
+  storageBucket: 'management-a0bbd.appspot.com',
+  messagingSenderId: '108685643956',
+  appId: '1:108685643956:web:547e209e304cb2b78a47e1',
+  measurementId: 'G-G8BVVDY25Y',
+  databaseURL: 'https://management-a0bbd.com',
 };
 
 let app;

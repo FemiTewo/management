@@ -29,7 +29,7 @@ interface AppBodyProp {
 
 const AppBody = ({
   children,
-  title = 'FPL Manager',
+  title = 'Project Manager',
 }: React.PropsWithChildren<AppBodyProp>) => {
   const isDarkMode = useColorScheme() === 'dark';
 

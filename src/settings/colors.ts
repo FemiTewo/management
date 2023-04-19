@@ -4,7 +4,7 @@ export default {
     borderColor: '#3f3f3f',
   },
   button: {
-    backgroundColor: 'purple',
+    backgroundColor: '#104a8e',
   },
   error: 'red',
   appWhite: 'white',

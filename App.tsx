@@ -2,7 +2,6 @@ import React from 'react';
 import Login from './src/screens/Login';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import Password from './src/screens/Password';
 import {useAppSelector} from './src/redux/hooks';
 import {selectIsLoggedIn} from './src/redux/auth/slice';
 import Home from './src/screens/Home';
@@ -20,7 +19,6 @@ const App = () => {
         {!isAuthenticated && (
           <>
             <Stack.Screen name="login" component={Login} />
-            <Stack.Screen name="password" component={Password} />
             <Stack.Screen name="signup" component={SignUp} />
           </>
         )}

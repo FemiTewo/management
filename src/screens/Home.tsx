@@ -1,116 +1,96 @@
 import * as React from 'react';
-import {
-  View,
-  StyleSheet,
-  TextInput,
-  Text,
-  ActivityIndicator,
-} from 'react-native';
+import {View, StyleSheet, Text, ActivityIndicator} from 'react-native';
 import AppText from '../components/AppText';
 import colors from '../settings/colors';
 import AppButton from '../components/AppButton';
 import AppBody from '../components/AppBody';
 import {useAppSelector} from '../redux/hooks';
 import {selectUserData} from '../redux/auth/slice';
-import {getUserDetails} from '../api/services';
 
 const Home = ({navigation}) => {
   const [state, setState] = React.useState({
     loading: false,
   });
 
-  const {name, id} = useAppSelector(selectUserData);
-  const [userInfo, setUserInfo] = React.useState();
-  console.log(userInfo);
+  const {user_name, last_name} = useAppSelector(selectUserData);
 
-  React.useEffect(() => {
-    setState({...state, loading: true});
-    getUserDetails(id)
-      .then(data => {
-        setUserInfo(data);
-      })
-      .finally(() => {
-        setState({...state, loading: false});
-      });
-  }, [id]);
+  console.log('====================================');
+  console.log(user_name, last_name);
+  console.log('====================================');
+
   return (
-    <AppBody title={`Welcome, ${name}`}>
+    <AppBody title={`Welcome, ${user_name}`}>
       {state?.loading && <ActivityIndicator />}
-      {userInfo && (
-        <>
-          <View>
-            <Text>
-              <AppText text="Current Gameweek: " />
-              <AppText text={userInfo?.current_event} />
-            </Text>
-          </View>
-          <View>
-            <Text>
-              <AppText text="Points Gathered: " />
-              <AppText text={userInfo?.summary_event_points} />
-            </Text>
-          </View>
-          <View style={styles.space} />
-          <AppText topic text="Wallet Information" />
-          <View>
-            <Text>
-              <AppText text="Available balance: " />
-              <AppText text="N 23,000" />
-            </Text>
-          </View>
-          <View style={styles.space} />
-          <View style={{alignItems: 'flex-start'}}>
-            <AppButton alternate text={'Top up'} action={() => {}} />
-          </View>
-          <View style={styles.space} />
-          <AppText topic text="Contests" />
-          <View style={styles.tableHead}>
-            {/* <Text>
+
+      <View>
+        <Text>
+          <AppText text="Current Gameweek: " />
+        </Text>
+      </View>
+      <View>
+        <Text>
+          <AppText text="Points Gathered: " />
+        </Text>
+      </View>
+      <View style={styles.space} />
+      <AppText topic text="Wallet Information" />
+      <View>
+        <Text>
+          <AppText text="Available balance: " />
+          <AppText text="N 23,000" />
+        </Text>
+      </View>
+      <View style={styles.space} />
+      <View style={{alignItems: 'flex-start'}}>
+        <AppButton alternate text={'Top up'} action={() => {}} />
+      </View>
+      <View style={styles.space} />
+      <AppText topic text="Contests" />
+      <View style={styles.tableHead}>
+        {/* <Text>
               <AppText text="Available balance: " />
               <AppText text="N 23,000" />
             </Text> */}
-            <View style={{flex: 0.5}}>
-              <AppText color={colors.appWhite} text="S/N" />
-            </View>
-            <View style={{flex: 2}}>
-              <AppText color={colors.appWhite} text="Name" />
-            </View>
-            <View style={{flex: 0.5}}>
-              <AppText color={colors.appWhite} text="Pos" />
-            </View>
-          </View>
-          <View style={styles.tableRow}>
-            {/* <Text>
+        <View style={{flex: 0.5}}>
+          <AppText color={colors.appWhite} text="S/N" />
+        </View>
+        <View style={{flex: 2}}>
+          <AppText color={colors.appWhite} text="Name" />
+        </View>
+        <View style={{flex: 0.5}}>
+          <AppText color={colors.appWhite} text="Pos" />
+        </View>
+      </View>
+      <View style={styles.tableRow}>
+        {/* <Text>
               <AppText text="Available balance: " />
               <AppText text="N 23,000" />
             </Text> */}
-            <View style={{flex: 0.5, padding: 8}}>
-              <AppText text="1" />
-            </View>
-            <View style={{flex: 2, padding: 8}}>
-              <AppText text="Trial" />
-            </View>
-            <View style={{flex: 0.5, padding: 8}}>
-              <AppText text="30" />
-            </View>
-          </View>
-          <View style={styles.tableRow}>
-            {/* <Text>
+        <View style={{flex: 0.5, padding: 8}}>
+          <AppText text="1" />
+        </View>
+        <View style={{flex: 2, padding: 8}}>
+          <AppText text="Trial" />
+        </View>
+        <View style={{flex: 0.5, padding: 8}}>
+          <AppText text="30" />
+        </View>
+      </View>
+      <View style={styles.tableRow}>
+        {/* <Text>
               <AppText text="Available balance: " />
               <AppText text="N 23,000" />
             </Text> */}
-            <View style={{flex: 0.5, padding: 8}}>
-              <AppText text="2" />
-            </View>
-            <View style={{flex: 2, padding: 8}}>
-              <AppText text="VIP" />
-            </View>
-            <View style={{flex: 0.5, padding: 8}}>
-              <AppText text="3" />
-            </View>
-          </View>
-        </>
-      )}
+        <View style={{flex: 0.5, padding: 8}}>
+          <AppText text="2" />
+        </View>
+        <View style={{flex: 2, padding: 8}}>
+          <AppText text="VIP" />
+        </View>
+        <View style={{flex: 0.5, padding: 8}}>
+          <AppText text="3" />
+        </View>
+      </View>
     </AppBody>
   );
 };

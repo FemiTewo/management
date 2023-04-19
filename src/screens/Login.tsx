@@ -5,14 +5,18 @@ import colors from '../settings/colors';
 import AppButton from '../components/AppButton';
 import AppBody from '../components/AppBody';
 import {useValidation} from '../hooks/useValidation';
-import {checkIfUserExists} from '../services/auth';
+import {completeAuth} from '../services/auth';
+import {useAppDispatch} from '../redux/hooks';
+import {login} from '../redux/auth/slice';
 
 const Login = ({navigation}) => {
   const [state, setState] = React.useState({
     loading: false,
+    error: '',
   });
 
   const [inputs, errors, blur, update, validate] = useValidation();
+  const dispatch = useAppDispatch();
 
   const authenticate = async () => {
     try {
@@ -21,39 +25,66 @@ const Login = ({navigation}) => {
       }
       setState({...state, loading: true});
       if (validate()) {
-        const response = await checkIfUserExists(inputs?.fplId);
+        const response = await completeAuth(inputs?.email, inputs?.password);
+        console.log(response);
         if (response) {
-          navigation.navigate('password', {
-            fplId: inputs?.fplId,
-          });
+          //save credentials
+          dispatch(login(response));
+          setState({...state, loading: false});
           return;
         }
-        navigation.navigate('signup', {
-          fplId: inputs?.fplId,
-        });
       }
-    } finally {
-      setState({...state, loading: false});
+    } catch (e) {
+      setState({
+        ...state,
+        loading: false,
+        error: e.message,
+      });
     }
   };
+
   return (
     <AppBody>
       <View>
         <View style={styles.topic}>
-          <AppText text="Manager ID" />
+          <AppText text="Email address" />
         </View>
         <TextInput
           autoFocus
-          placeholder="FPL ID"
+          placeholder="Email address"
+          keyboardType="email-address"
           style={styles.textInput}
-          onBlur={() => blur('fplId')}
+          onBlur={() => blur('email')}
           onChangeText={(text: string) => {
-            update(text, 'fplId');
+            update(text, 'email');
           }}
         />
-        {!!errors?.fplId && (
+        {!!errors?.email && (
           <View>
-            <AppText error text={errors?.fplId} />
+            <AppText error text={errors?.email} />
+          </View>
+        )}
+        <View style={{height: 20}} />
+        <View style={styles.topic}>
+          <AppText text="Password" />
+        </View>
+        <TextInput
+          placeholder="Password"
+          style={styles.textInput}
+          onBlur={() => blur('password')}
+          onChangeText={(text: string) => {
+            update(text, 'password');
+          }}
+        />
+        {!!errors?.password && (
+          <View>
+            <AppText error text={errors?.password} />
+          </View>
+        )}
+        <View style={styles.space} />
+        {!!state?.error && (
+          <View>
+            <AppText error text={state?.error} />
           </View>
         )}
         <View style={styles.space} />

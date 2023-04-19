@@ -17,24 +17,22 @@ export const checkIfUserExists = async (fplId: string) => {
     return false;
   }
 };
-export const completeAuth = async (fplId: string, password: string) => {
+export const completeAuth = async (email: string, password: string) => {
   try {
-    const response = await db.collection('users').doc(fplId).get();
+    const response = await db
+      .collection('users')
+      .where('email', '==', email.toLowerCase())
+      .where('password', '==', password)
+      .get();
     if (response) {
-      console.log('User exists: ', response.exists);
-
-      if (response.exists) {
-        const data = response.data();
-        if (data?.password === password) {
-          return true;
-        }
-        return false;
+      if (!response.empty) {
+        let doc = response.docs[0].data();
+        return doc;
       }
     }
-    return false;
+    throw new Error('invalid credentials');
   } catch (e) {
-    console.log('An error occurred', e);
-    return false;
+    throw e;
   }
 };
 export const getUserData = async (fplId: string) => {

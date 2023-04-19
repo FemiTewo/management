@@ -4,15 +4,17 @@ import {RootState} from '../store';
 interface InitState {
   isLoggedIn: boolean;
   userData: {
-    name: string;
-    id: string;
+    user_name: string;
+    email: string;
+    first_name: string;
+    last_name: string;
   };
 }
 
 // Define the initial state using that type
 const initialState: InitState = {
   isLoggedIn: false,
-  userData: {id: '', name: ''},
+  userData: {user_name: '', email: '', first_name: '', last_name: ''},
 };
 
 export const authSlice = createSlice({
@@ -22,8 +24,7 @@ export const authSlice = createSlice({
     login: (state, {payload}: PayloadAction) => {
       state.isLoggedIn = true;
       state.userData = {
-        id: payload?.id as string,
-        name: payload?.name as string,
+        ...payload,
       };
     },
     logout: state => {

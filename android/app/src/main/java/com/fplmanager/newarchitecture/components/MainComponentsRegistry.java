@@ -1,4 +1,4 @@
-package com.fplmanager.newarchitecture.components;
+package com.manager.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;

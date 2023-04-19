@@ -20,8 +20,8 @@ const AppText = ({
       style={[
         styles.text,
         topic ? styles.topic : {},
-        error ? styles.error : {},
         {color},
+        error ? styles.error : {},
       ]}>
       {text}
     </Text>
