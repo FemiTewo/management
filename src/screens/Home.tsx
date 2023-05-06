@@ -1,11 +1,19 @@
 import * as React from 'react';
-import {View, StyleSheet, Text, ActivityIndicator} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  ActivityIndicator,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import AppText from '../components/AppText';
-import colors from '../settings/colors';
 import AppButton from '../components/AppButton';
 import AppBody from '../components/AppBody';
 import {useAppSelector} from '../redux/hooks';
 import {selectUserData} from '../redux/auth/slice';
+import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
+import Feather from 'react-native-vector-icons/Feather';
+import {useTheme} from '@react-navigation/native';
 
 const Home = ({navigation}) => {
   const [state, setState] = React.useState({
@@ -14,82 +22,63 @@ const Home = ({navigation}) => {
 
   const {user_name, last_name} = useAppSelector(selectUserData);
 
-  console.log('====================================');
-  console.log(user_name, last_name);
-  console.log('====================================');
+  const {colors} = useTheme();
 
   return (
-    <AppBody title={`Welcome, ${user_name}`}>
+    <AppBody title={`Welcome, ${user_name}`} fullView>
+      <AppText text="Project Manager" tiny />
       {state?.loading && <ActivityIndicator />}
 
-      <View>
-        <Text>
-          <AppText text="Current Gameweek: " />
-        </Text>
-      </View>
-      <View>
-        <Text>
-          <AppText text="Points Gathered: " />
-        </Text>
-      </View>
       <View style={styles.space} />
-      <AppText topic text="Wallet Information" />
-      <View>
-        <Text>
-          <AppText text="Available balance: " />
-          <AppText text="N 23,000" />
-        </Text>
-      </View>
+      <AppText topic text="Teams" />
       <View style={styles.space} />
       <View style={{alignItems: 'flex-start'}}>
-        <AppButton alternate text={'Top up'} action={() => {}} />
+        <AppButton
+          alternate
+          text="Create a Team"
+          action={() => {}}
+          icon={
+            <View style={{marginRight: 10}}>
+              <Feather name="plus" size={28} color={colors.icon} />
+            </View>
+          }
+        />
       </View>
       <View style={styles.space} />
-      <AppText topic text="Contests" />
-      <View style={styles.tableHead}>
-        {/* <Text>
-              <AppText text="Available balance: " />
-              <AppText text="N 23,000" />
-            </Text> */}
-        <View style={{flex: 0.5}}>
-          <AppText color={colors.appWhite} text="S/N" />
-        </View>
-        <View style={{flex: 2}}>
-          <AppText color={colors.appWhite} text="Name" />
-        </View>
-        <View style={{flex: 0.5}}>
-          <AppText color={colors.appWhite} text="Pos" />
-        </View>
-      </View>
-      <View style={styles.tableRow}>
-        {/* <Text>
-              <AppText text="Available balance: " />
-              <AppText text="N 23,000" />
-            </Text> */}
-        <View style={{flex: 0.5, padding: 8}}>
-          <AppText text="1" />
-        </View>
-        <View style={{flex: 2, padding: 8}}>
-          <AppText text="Trial" />
-        </View>
-        <View style={{flex: 0.5, padding: 8}}>
-          <AppText text="30" />
-        </View>
-      </View>
-      <View style={styles.tableRow}>
-        {/* <Text>
-              <AppText text="Available balance: " />
-              <AppText text="N 23,000" />
-            </Text> */}
-        <View style={{flex: 0.5, padding: 8}}>
-          <AppText text="2" />
-        </View>
-        <View style={{flex: 2, padding: 8}}>
-          <AppText text="VIP" />
-        </View>
-        <View style={{flex: 0.5, padding: 8}}>
-          <AppText text="3" />
-        </View>
+      <View>
+        <TouchableWithoutFeedback onPress={() => navigation.navigate('team')}>
+          <View style={styles.drop}>
+            <View style={styles.icon}>
+              <SimpleLineIcons name="docs" size={28} color={colors.icon} />
+            </View>
+            <View>
+              <AppText text="Project 1" />
+              <AppText tiny text="2 members" />
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback>
+          <View style={styles.drop}>
+            <View style={styles.icon}>
+              <SimpleLineIcons name="docs" size={28} color={colors.icon} />
+            </View>
+            <View>
+              <AppText text="Project 2" />
+              <AppText tiny text="3 members" />
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback>
+          <View style={styles.drop}>
+            <View style={styles.icon}>
+              <SimpleLineIcons name="docs" size={28} color={colors.icon} />
+            </View>
+            <View>
+              <AppText text="Project 3" />
+              <AppText tiny text="5 members" />
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
       </View>
     </AppBody>
   );
@@ -98,10 +87,13 @@ const Home = ({navigation}) => {
 export default Home;
 
 const styles = StyleSheet.create({
+  drop: {
+    padding: 10,
+    marginBottom: 5,
+    flexDirection: 'row',
+  },
   textInput: {
-    backgroundColor: colors.textInput.backgroundColor,
     borderRadius: 8,
-    borderColor: colors.textInput.borderColor,
     borderWidth: 1,
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -116,8 +108,12 @@ const styles = StyleSheet.create({
   },
   tableHead: {
     flexDirection: 'row',
-    backgroundColor: colors.button.backgroundColor,
     padding: 8,
     borderRadius: 8,
+  },
+  icon: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
   },
 });

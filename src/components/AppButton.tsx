@@ -1,28 +1,42 @@
 import * as React from 'react';
 import {Text, View, StyleSheet, TouchableWithoutFeedback} from 'react-native';
-import colors from '../settings/colors';
+import {useTheme} from '@react-navigation/native';
 
 interface AppButtonProps {
   text: string;
   action: () => void;
   alternate?: boolean;
+  icon?: JSX.Element | JSX.Element[];
 }
 
-const AppButton = ({text, action, alternate}: AppButtonProps) => {
+const AppButton = ({text, action, alternate, icon}: AppButtonProps) => {
+  const {colors} = useTheme();
   return (
     <TouchableWithoutFeedback onPress={action}>
-      <View style={alternate ? styles.alternateContainer : styles.container}>
-        <Text
-          style={[
-            styles.text,
-            {
-              color: alternate
-                ? colors.button.backgroundColor
-                : colors.appWhite,
-            },
-          ]}>
-          {text}
-        </Text>
+      <View
+        style={
+          alternate
+            ? {
+                ...styles.alternateContainer,
+                backgroundColor: colors.button.alternateBackground,
+                borderColor: colors.button.alternateBorder,
+              }
+            : {...styles.container, backgroundColor: colors.button.background}
+        }>
+        {icon}
+        <View>
+          <Text
+            style={[
+              styles.text,
+              {
+                color: alternate
+                  ? colors.button.alternateText
+                  : colors.button.text,
+              },
+            ]}>
+            {text}
+          </Text>
+        </View>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -32,11 +46,11 @@ export default AppButton;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.button.backgroundColor,
     padding: 8,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
+    flexDirection: 'row',
   },
   alternateContainer: {
     backgroundColor: 'transparent',
@@ -44,11 +58,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    borderColor: colors.button.backgroundColor,
     borderWidth: 1,
+    flexDirection: 'row',
   },
   text: {
     color: 'white',
-    fontFamily: 'GFSNeohellenic-Bold',
+    fontFamily: 'ClashGrotesk',
+    fontWeight: '700',
   },
 });

@@ -1,9 +1,22 @@
 import {configureStore} from '@reduxjs/toolkit';
 import authReducer from './auth/slice';
+import teamReducer from './team/slice';
+import settingsReducer from './settings/slice';
+import projectsReducer from './projects/slice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {persistReducer} from 'redux-persist';
+
+const themePersistConfig = {
+  key: 'com.manager/db/persist/settings',
+  storage: AsyncStorage,
+};
 
 export const store = configureStore({
   reducer: {
     user: authReducer,
+    team: teamReducer,
+    settings: persistReducer(themePersistConfig, settingsReducer),
+    projects: projectsReducer,
   },
 });
 

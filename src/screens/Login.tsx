@@ -69,6 +69,7 @@ const Login = ({navigation}) => {
           <AppText text="Password" />
         </View>
         <TextInput
+          secureTextEntry={true}
           placeholder="Password"
           style={styles.textInput}
           onBlur={() => blur('password')}
@@ -78,7 +79,7 @@ const Login = ({navigation}) => {
         />
         {!!errors?.password && (
           <View>
-            <AppText error text={errors?.password} />
+            <AppText error tiny text={errors?.password} />
           </View>
         )}
         <View style={styles.space} />
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    fontFamily: 'GFSNeohellenic-Regular',
+    fontFamily: 'ClashGrotesk',
   },
   space: {height: 8},
   topic: {

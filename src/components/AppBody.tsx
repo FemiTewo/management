@@ -9,6 +9,9 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import AppText from './AppText';
+import {useTheme} from '@react-navigation/native';
+import {useAppSelector} from '../redux/hooks';
+import {selectTheme} from '../redux/settings/slice';
 type ReactText = string | number;
 type ReactChild = React.ReactElement | ReactText;
 
@@ -25,28 +28,33 @@ type ReactNode =
 interface AppBodyProp {
   children: ReactNode;
   title?: string;
+  fullView?: boolean;
 }
 
 const AppBody = ({
   children,
   title = 'Project Manager',
+  fullView,
 }: React.PropsWithChildren<AppBodyProp>) => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const theme = useAppSelector(selectTheme);
+  const {colors} = useTheme();
   return (
-    <SafeAreaView style={[backgroundStyle, styles.safeAreaView]}>
+    <SafeAreaView
+      style={[styles.safeAreaView, {backgroundColor: colors.background}]}>
       <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+        barStyle={theme === 'light' ? 'dark-content' : 'light-content'}
+        backgroundColor={colors.background}
       />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.scrollview}
-        style={backgroundStyle}>
-        <View style={styles.container}>
+        // style={backgroundStyle}
+      >
+        <View
+          style={[
+            styles.container,
+            {justifyContent: fullView ? 'flex-start' : 'center'},
+          ]}>
           <View>
             <View>
               <AppText text={title} topic />
@@ -65,7 +73,6 @@ const styles = StyleSheet.create({
   container: {
     margin: 20,
     flex: 1,
-    justifyContent: 'center',
   },
   scrollview: {
     flexGrow: 1,

@@ -27,6 +27,8 @@ export const completeAuth = async (email: string, password: string) => {
     if (response) {
       if (!response.empty) {
         let doc = response.docs[0].data();
+        delete doc.projects;
+        doc['id'] = response.docs[0].id;
         return doc;
       }
     }
