@@ -24,11 +24,11 @@ const AppText = ({
     <Text
       style={[
         styles.text,
+        strong ? styles.strong : {},
         tiny ? styles?.tiny : {},
         topic ? styles.topic : {},
         // eslint-disable-next-line react-native/no-inline-styles
         {color: error ? 'red' : color ? color : colors.text},
-        strong ? styles.strong : {},
       ]}>
       {text}
     </Text>

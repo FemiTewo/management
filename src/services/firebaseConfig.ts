@@ -21,3 +21,4 @@ if (firebase.apps.length === 0) {
 }
 export default app;
 export const db = firebase.firestore();
+export const fieldValue = firebase.firestore.FieldValue;

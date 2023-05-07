@@ -1,4 +1,4 @@
-import {db} from './firebaseConfig';
+import {db, fieldValue} from './firebaseConfig';
 
 export const getProjects = async (id: string) => {
   const docRef = db.collection('users').doc(id);
@@ -6,12 +6,12 @@ export const getProjects = async (id: string) => {
     try {
       const doc = await docRef.get();
       if (doc.exists) {
-        const referenceArray = doc.data().projects;
+        const referenceArray = (doc.data() as any).projects;
         const referencedDocs = await Promise.all(
-          referenceArray.map(async ref => {
+          referenceArray.map(async (ref: any) => {
             const rs = await ref.get();
             let rsData = rs.data();
-            rsData['id'] = rs.id;
+            rsData.id = rs.id;
             delete rsData.boards;
             delete rsData.members;
             return rs.data();
@@ -33,19 +33,28 @@ export const getBoards = async (id: string) => {
     try {
       const doc = await docRef.get();
       if (doc.exists) {
-        const referenceArray = doc.data().boards;
+        const referenceArray = (doc.data() as any).boards;
+        const membersReferenceArray = (doc.data() as any).members;
         const referencedDocs = await Promise.all(
-          referenceArray.map(async ref => {
-            const rs = await ref.get();
-            let rsData = rs.data();
-            console.log(rsData);
-            rsData['id'] = rs.id;
-            delete rsData.tasks;
-            return rs.data();
-          }),
+          [...referenceArray, ...membersReferenceArray].map(
+            async (ref: any) => {
+              const rs = await ref.get();
+              let rsData = rs.data();
+              rsData.id = rs.id;
+              delete rsData.tasks;
+              return rsData;
+            },
+          ),
         );
-        console.log(referencedDocs);
-        return referencedDocs;
+        let finalData = {members: [], boards: []};
+        referencedDocs.map(item => {
+          if ((item as Object).hasOwnProperty('email')) {
+            return finalData.members.push(item);
+          }
+          return finalData.boards.push(item);
+        });
+        console.log('Promise =====>', finalData);
+        return finalData;
       } else {
         console.log('Document does not exist');
       }
@@ -63,21 +72,25 @@ export const getItemsFromTask = async (id: string) => {
       if (doc.exists) {
         const referenceArray = (doc.data() as any).messages;
         const referencedDocs = await Promise.all(
-          referenceArray.map(async ref => {
+          referenceArray.map(async (ref: any) => {
             const rs = await ref.get();
             let rsData = rs.data();
             rsData.id = rs.id;
-            const user = await rsData.user.get();
+
+            const userRef = rsData.user;
+            const user = await userRef.get();
             let userData = user.data();
-            userData.id = rs.id;
+            userData.id = user.id;
             delete userData.projects;
+
+            console.log('got here');
             const tagsArrayReference = rsData.tags;
             const tagsReferencedDocs = await Promise.all(
-              tagsArrayReference.map(async ref => {
-                const tag = await ref.get();
+              tagsArrayReference.map(async (rf: any) => {
+                const tag = await rf.get();
                 let tagData = tag.data();
-                tagData.id = rs.id;
-                delete rsData.projects;
+                tagData.id = tag.id;
+                delete tagData.projects;
                 return tagData;
               }),
             );
@@ -88,7 +101,6 @@ export const getItemsFromTask = async (id: string) => {
             return rs.data();
           }),
         );
-        console.log('referenceDoc ==========>', referencedDocs);
         return referencedDocs;
       } else {
         console.log('Document does not exist');
@@ -105,12 +117,12 @@ export const getTasksFromBoard = async (id: string) => {
     try {
       const doc = await docRef.get();
       if (doc.exists) {
-        const referenceArray = doc.data().tasks;
+        const referenceArray = (doc.data() as any).tasks;
         const referencedDocs = await Promise.all(
-          referenceArray.map(async ref => {
+          referenceArray.map(async (ref: any) => {
             const rs = await ref.get();
             let rsData = rs.data();
-            rsData['id'] = rs.id;
+            rsData.id = rs.id;
             const us = await rsData.assigned_to.get();
             const usData = us.data();
             delete usData.projects;
@@ -135,12 +147,12 @@ export const getUserFromTask = async (id: string) => {
     try {
       const doc = await docRef.get();
       if (doc.exists) {
-        const referenceArray = doc.data().messages;
+        const referenceArray = (doc.data() as any).messages;
         const referencedDocs = await Promise.all(
-          referenceArray.map(async ref => {
+          referenceArray.map(async (ref: any) => {
             const rs = await ref.get();
             let rsData = rs.data();
-            rsData['id'] = rs.id;
+            rsData.id = rs.id;
             const us = await rsData.user.get();
             const user = us.data();
             delete rsData.tags;
@@ -156,5 +168,34 @@ export const getUserFromTask = async (id: string) => {
     } catch (error) {
       console.log('Error retrieving document:', error);
     }
+  }
+};
+
+export const saveMessage = async (
+  message: string,
+  tags: string[],
+  user: string,
+  task: string,
+) => {
+  try {
+    const data = {
+      message,
+      tags: [...tags.map(tag => db.doc(`users/${tag}`))],
+      user: db.doc(`users/${user}`),
+    };
+    let newMessageDoc = await db.collection('messages').add(data);
+    console.log(newMessageDoc);
+    await db
+      .collection('tasks')
+      .doc(task)
+      .update({
+        messages: fieldValue.arrayUnion(
+          db.doc(`messages/${newMessageDoc?.id}`),
+        ),
+      });
+    return true;
+  } catch (e) {
+    return false;
+    console.log(e);
   }
 };

@@ -1,7 +1,7 @@
 import {PayloadAction, createSlice} from '@reduxjs/toolkit';
 import {RootState} from '../store';
 
-interface InitState {
+export interface InitState {
   isLoggedIn: boolean;
   theme: 'dark' | 'light';
   userData: {

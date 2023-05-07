@@ -14,7 +14,12 @@ import {useTheme} from '@react-navigation/native';
 import {getBoards, getProjects} from '../services/project';
 import {useAppDispatch, useAppSelector} from '../redux/hooks';
 import {selectUserData} from '../redux/auth/slice';
-import {loadProjects, selectProjects, setBoard} from '../redux/projects/slice';
+import {
+  loadProjects,
+  selectProjects,
+  setBoard,
+  setProjectMembers,
+} from '../redux/projects/slice';
 
 const Boards = ({navigation}) => {
   const [active, setActive] = React.useState<number | null>();
@@ -46,7 +51,8 @@ const Boards = ({navigation}) => {
       setState({...state, boardLoading: true});
       let response = await getBoards(projects[active].id);
       if (response) {
-        setBoards(response);
+        setBoards(response.boards);
+        dispatch(setProjectMembers(response.members));
       }
       setState({...state, boardLoading: false});
     })();

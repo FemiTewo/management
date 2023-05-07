@@ -71,7 +71,6 @@ export default AppBody;
 
 const styles = StyleSheet.create({
   container: {
-    margin: 20,
     flex: 1,
   },
   scrollview: {
