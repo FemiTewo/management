@@ -1,22 +1,48 @@
 import * as React from 'react';
-import {
-  View,
-  StyleSheet,
-  ActivityIndicator,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import {View, StyleSheet, TouchableWithoutFeedback} from 'react-native';
 import AppText from '../components/AppText';
 import AppButton from '../components/AppButton';
 import AppBody from '../components/AppBody';
 import Feather from 'react-native-vector-icons/Feather';
 import {useTheme} from '@react-navigation/native';
-import {changeTaskStatus, getTasksFromBoard} from '../services/project';
+import {
+  changeTaskStatus,
+  getDatesBetween,
+  getDeepColors,
+  getTasksFromBoard,
+  max_date,
+  min_date,
+  months,
+} from '../services/project';
 import {useAppDispatch, useAppSelector} from '../redux/hooks';
 import {selectBoard, setTask} from '../redux/projects/slice';
 import Octicons from 'react-native-vector-icons/Octicons';
 import ActionSheet, {ActionSheetRef} from 'react-native-actions-sheet';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import DropDownPicker from 'react-native-dropdown-picker';
+import {ScrollView} from 'react-native-gesture-handler';
+
+const SPACEBETWEENDATES = 30;
+const HEIGHTBETWEENDATES = (x: 5) => {
+  if (x < 3) {
+    return 200;
+  }
+  if (x < 5) {
+    return 400;
+  }
+  if (x < 10) {
+    return 400;
+  }
+  if (x < 15) {
+    return 600;
+  }
+
+  return 800;
+};
+
+const deepColors = getDeepColors();
+
 const EachTask = ({
   title,
   description,
@@ -58,6 +84,8 @@ const Tasks = ({navigation}) => {
       assinged_to: string;
       title: string;
       description: string;
+      end: string;
+      start: string;
     }[]
   >([]);
   const [currentTask, setCurrentTask] = React.useState<{
@@ -81,6 +109,17 @@ const Tasks = ({navigation}) => {
   const actionSheetRef = React.useRef<ActionSheetRef>(null);
   const deleteActionSheetRef = React.useRef<ActionSheetRef>(null);
 
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState('kanban');
+  const [items, setItems] = React.useState([
+    {label: 'Kanban Board', value: 'kanban'},
+    {label: 'Gantt Chart', value: 'gantt'},
+  ]);
+
+  // console.log(getDatesBetween(min_date(tasks), max_date(tasks)));
+  const datesBetween = getDatesBetween(min_date(tasks), max_date(tasks));
+
+  const [minimized, setMinimized] = React.useState(true);
   return (
     <>
       <AppBody title={board.title || 'Tasks'} fullView>
@@ -88,7 +127,7 @@ const Tasks = ({navigation}) => {
         <View style={{alignItems: 'flex-start'}}>
           <AppButton
             alternate
-            text="Create Board"
+            text="Create Task"
             action={() => {}}
             icon={
               <View style={{marginRight: 10}}>
@@ -98,93 +137,285 @@ const Tasks = ({navigation}) => {
           />
         </View>
         <View style={styles.space} />
-        <View style={{flexDirection: 'row'}}>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              setActive('To-do');
-            }}>
-            <View
-              style={[styles.menu, active === 'To-do' ? styles.active : {}]}>
-              <AppText
-                color={active === 'To-do' ? 'white' : 'black'}
-                strong={active === 'To-do'}
-                text="To Do"
-              />
-            </View>
-          </TouchableWithoutFeedback>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              setActive('In Progress');
-            }}>
-            <View
-              style={[
-                styles.menu,
-                active === 'In Progress' ? styles.active : {},
-              ]}>
-              <AppText
-                color={active === 'In Progress' ? 'white' : 'black'}
-                strong={active === 'In Progress'}
-                text="In Progress"
-              />
-            </View>
-          </TouchableWithoutFeedback>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              setActive('Quality Assurance');
-            }}>
-            <View
-              style={[
-                styles.menu,
-                active === 'Quality Assurance' ? styles.active : {},
-              ]}>
-              <AppText
-                color={active === 'Quality Assurance' ? 'white' : 'black'}
-                strong={active === 'Quality Assurance'}
-                text="QA"
-              />
-            </View>
-          </TouchableWithoutFeedback>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              setActive('Done');
-            }}>
-            <View style={[styles.menu, active === 'Done' ? styles.active : {}]}>
-              <AppText
-                color={active === 'Done' ? 'white' : 'black'}
-                strong={active === 'Done'}
-                text="Done"
-              />
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-        <View style={{height: 10}} />
-        <View style={styles.slide}>
-          <View>
-            {tasks
-              .filter(
-                task => task?.status === active && task?.status !== 'Deleted',
-              )
-              .map(task => {
-                const {id, title, description, status} = task;
-                return (
-                  <EachTask
-                    key={id}
-                    title={title}
-                    description={description}
-                    onPress={() => {
-                      dispatch(setTask({id, title}));
-                      navigation.navigate('Task');
-                    }}
-                    onLongPress={() => {
-                      setCurrentTask({id, status});
-                      actionSheetRef.current?.show();
-                    }}
-                    colors={colors}
+        <DropDownPicker
+          open={open}
+          value={value}
+          items={items}
+          setOpen={setOpen}
+          setValue={setValue}
+          setItems={setItems}
+        />
+        <View style={styles.space} />
+        {value === 'gantt' && (
+          <>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  setMinimized(!minimized);
+                }}>
+                <View
+                  // eslint-disable-next-line react-native/no-inline-styles
+                  style={{
+                    paddingVertical: 4,
+                    paddingHorizontal: 10,
+                    borderRadius: 10,
+                    backgroundColor: minimized ? 'grey' : 'transparent',
+                    borderColor: 'grey',
+                    borderWidth: 1,
+                  }}>
+                  <AppText
+                    tiny
+                    text={minimized ? 'Maximize' : 'Minimize'}
+                    color={minimized ? 'white' : 'black'}
                   />
-                );
-              })}
-          </View>
-        </View>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+            <View style={styles.space} />
+            <View style={{flexDirection: 'row'}}>
+              <View style={{marginRight: 10}}>
+                {tasks.map(({title, start, end}, tIndex) => {
+                  // console.log(end.toISOString().substr(0, 10));
+                  return (
+                    <View
+                      // eslint-disable-next-line react-native/no-inline-styles
+                      style={{
+                        width: minimized ? 20 : 80,
+                        overflow: 'hidden',
+                      }}>
+                      <View
+                        // eslint-disable-next-line react-native/no-inline-styles
+                        style={{
+                          alignSelf: 'flex-start',
+                          backgroundColor: deepColors[tIndex % 20],
+                          paddingHorizontal: 10,
+                          paddingVertical: 2,
+                          borderRadius: 4,
+                          height: 28,
+                          overflow: 'hidden',
+                        }}>
+                        <AppText text={title} color="white" />
+                      </View>
+                      <View
+                        style={{
+                          height:
+                            HEIGHTBETWEENDATES(tasks.length) / tasks.length -
+                            36.5,
+                        }}
+                      />
+                    </View>
+                  );
+                })}
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View>
+                  <View
+                    // eslint-disable-next-line react-native/no-inline-styles
+                    style={{
+                      width: SPACEBETWEENDATES * datesBetween.length,
+                      borderLeftWidth: 1,
+                      borderBottomWidth: 1,
+                      backgroundColor: 'skyblue',
+                      height: HEIGHTBETWEENDATES(tasks.length),
+                    }}>
+                    <View
+                      // eslint-disable-next-line react-native/no-inline-styles
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                      }}>
+                      {tasks.map((task, tIndex) => {
+                        return (
+                          <>
+                            <View
+                              // eslint-disable-next-line react-native/no-inline-styles
+                              style={{
+                                position: 'relative',
+                                height: 30,
+                                width: datesBetween.length * SPACEBETWEENDATES,
+                              }}>
+                              {datesBetween.map((date, index) => {
+                                if (
+                                  new Date(date) >= new Date(task.start) &&
+                                  new Date(date) <= new Date(task.end)
+                                ) {
+                                  return (
+                                    <>
+                                      <View
+                                        // eslint-disable-next-line react-native/no-inline-styles
+                                        style={{
+                                          position: 'absolute',
+                                          left: index * SPACEBETWEENDATES,
+                                          height: 20,
+                                          width: SPACEBETWEENDATES,
+                                          backgroundColor:
+                                            deepColors[tIndex % 20],
+                                        }}
+                                      />
+                                    </>
+                                  );
+                                }
+                              })}
+                            </View>
+                            <View
+                              style={{
+                                height:
+                                  HEIGHTBETWEENDATES(tasks.length) /
+                                    tasks.length -
+                                  38,
+                              }}
+                            />
+                          </>
+                        );
+                      })}
+                    </View>
+                  </View>
+                  <View style={{flexDirection: 'row'}}>
+                    {datesBetween &&
+                      datesBetween.map((date, index) => {
+                        let d = date.split('-')[2];
+                        let k = date.split('-')[1];
+                        let y = date.split('-')[0];
+                        let newK =
+                          index !== 0
+                            ? datesBetween[index - 1].split('-')[1]
+                            : '';
+                        let newY =
+                          index !== 0
+                            ? datesBetween[index - 1].split('-')[0]
+                            : '';
+                        return (
+                          <View>
+                            <View
+                              // eslint-disable-next-line react-native/no-inline-styles
+                              style={{
+                                width: SPACEBETWEENDATES,
+                                overflow: 'hidden',
+                                alignItems: 'center',
+                              }}>
+                              <AppText text={parseInt(d)} />
+                            </View>
+                            {(index === 0 || k !== newK) && (
+                              <View>
+                                <AppText text={months[parseInt(k) - 1]} />
+                              </View>
+                            )}
+                            {(index === 0 || y !== newY) && (
+                              <View>
+                                <AppText
+                                  strong
+                                  text={`'${y.substring(2, 4)}`}
+                                />
+                              </View>
+                            )}
+                          </View>
+                        );
+                      })}
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          </>
+        )}
+        {value === 'kanban' && (
+          <>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  setActive('To-do');
+                }}>
+                <View
+                  style={[
+                    styles.menu,
+                    active === 'To-do' ? styles.active : {},
+                  ]}>
+                  <AppText
+                    color={active === 'To-do' ? 'white' : 'black'}
+                    strong={active === 'To-do'}
+                    text="To Do"
+                  />
+                </View>
+              </TouchableWithoutFeedback>
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  setActive('In Progress');
+                }}>
+                <View
+                  style={[
+                    styles.menu,
+                    active === 'In Progress' ? styles.active : {},
+                  ]}>
+                  <AppText
+                    color={active === 'In Progress' ? 'white' : 'black'}
+                    strong={active === 'In Progress'}
+                    text="In Progress"
+                  />
+                </View>
+              </TouchableWithoutFeedback>
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  setActive('Quality Assurance');
+                }}>
+                <View
+                  style={[
+                    styles.menu,
+                    active === 'Quality Assurance' ? styles.active : {},
+                  ]}>
+                  <AppText
+                    color={active === 'Quality Assurance' ? 'white' : 'black'}
+                    strong={active === 'Quality Assurance'}
+                    text="QA"
+                  />
+                </View>
+              </TouchableWithoutFeedback>
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  setActive('Done');
+                }}>
+                <View
+                  style={[styles.menu, active === 'Done' ? styles.active : {}]}>
+                  <AppText
+                    color={active === 'Done' ? 'white' : 'black'}
+                    strong={active === 'Done'}
+                    text="Done"
+                  />
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+            <View style={{height: 10}} />
+            <View style={styles.slide}>
+              <View>
+                {tasks
+                  .filter(
+                    task =>
+                      task?.status === active && task?.status !== 'Deleted',
+                  )
+                  .map(task => {
+                    const {id, title, description, status} = task;
+                    return (
+                      <EachTask
+                        key={id}
+                        title={title}
+                        description={description}
+                        onPress={() => {
+                          dispatch(setTask({id, title}));
+                          navigation.navigate('Task');
+                        }}
+                        onLongPress={() => {
+                          setCurrentTask({id, status});
+                          actionSheetRef.current?.show();
+                        }}
+                        colors={colors}
+                      />
+                    );
+                  })}
+              </View>
+            </View>
+          </>
+        )}
       </AppBody>
       <ActionSheet ref={actionSheetRef}>
         <View style={{marginBottom: 30}}>

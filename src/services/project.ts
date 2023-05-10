@@ -171,6 +171,101 @@ export const getUserFromTask = async (id: string) => {
   }
 };
 
+export const months = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+const getRandomColor = () => {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};
+
+export const getDeepColors = () => {
+  return [
+    '#169C97',
+    '#6B3747',
+    '#017674',
+    '#92395F',
+    '#DEC7D1',
+    '#AF3A95',
+    '#2B24C7',
+    '#BBCAB2',
+    '#2B7B32',
+    '#3B7DEC',
+    '#F4A4DC',
+    '#70DBB6',
+    '#FF75A7',
+    '#39BCF2',
+    '#ACC12E',
+    '#A1D1CC',
+    '#C5EF91',
+    '#589C26',
+    '#D622CE',
+    '#2A3F72',
+  ];
+};
+
+export function max_date(tasks) {
+  let all_dates = [];
+  tasks.map(task => {
+    all_dates.push(task.end);
+  });
+  var max_dt = all_dates[0],
+    max_dtObj = new Date(all_dates[0]);
+  all_dates.forEach(function (dt, index) {
+    if (new Date(dt) > max_dtObj) {
+      max_dt = dt;
+      max_dtObj = new Date(dt);
+    }
+  });
+  return max_dt;
+}
+export function min_date(tasks) {
+  let all_dates = [];
+  tasks.map(task => {
+    all_dates.push(task.start);
+  });
+  let min_dt = all_dates[0],
+    min_dtObj = new Date(all_dates[0]);
+  all_dates.forEach(function (dt, index) {
+    if (new Date(dt) < min_dtObj) {
+      min_dt = dt;
+      min_dtObj = new Date(dt);
+    }
+  });
+  return min_dt;
+}
+
+export function getDatesBetween(startDate: string, endDate: string) {
+  let sDate = new Date(startDate);
+  let eDate = new Date(endDate);
+
+  const dates = [];
+  let currentDate = new Date(sDate);
+
+  while (currentDate <= eDate) {
+    dates.push(new Date(currentDate).toISOString().substring(0, 10));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return dates;
+}
+
 export const changeTaskStatus = async (
   task: string,
   status: 'To-do' | 'In Progress' | 'Quality Assurance' | 'Done' | 'Deleted',
