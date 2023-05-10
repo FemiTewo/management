@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   },
   strong: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '700',
     fontFamily: 'ClashGrotesk',
   },
   topic: {

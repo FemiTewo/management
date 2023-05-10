@@ -171,6 +171,19 @@ export const getUserFromTask = async (id: string) => {
   }
 };
 
+export const changeTaskStatus = async (
+  task: string,
+  status: 'To-do' | 'In Progress' | 'Quality Assurance' | 'Done' | 'Deleted',
+) => {
+  try {
+    await db.collection('tasks').doc(task).update({status});
+    return true;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+};
+
 export const saveMessage = async (
   message: string,
   tags: string[],
