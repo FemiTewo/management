@@ -1,15 +1,15 @@
 import * as React from 'react';
-import {View, StyleSheet, TextInput} from 'react-native';
+import { View, StyleSheet, TextInput } from 'react-native';
 import AppText from '../components/AppText';
 import colors from '../settings/colors';
 import AppButton from '../components/AppButton';
 import AppBody from '../components/AppBody';
-import {useValidation} from '../hooks/useValidation';
-import {completeAuth} from '../services/auth';
-import {useAppDispatch} from '../redux/hooks';
-import {login} from '../redux/auth/slice';
+import { useValidation } from '../hooks/useValidation';
+import { completeAuth } from '../services/auth';
+import { useAppDispatch } from '../redux/hooks';
+import { login } from '../redux/auth/slice';
 
-const Login = ({navigation}) => {
+const Login = ({ navigation }) => {
   const [state, setState] = React.useState({
     loading: false,
     error: '',
@@ -23,14 +23,14 @@ const Login = ({navigation}) => {
       if (state.loading) {
         return;
       }
-      setState({...state, loading: true});
+      setState({ ...state, loading: true });
       if (validate()) {
         const response = await completeAuth(inputs?.email, inputs?.password);
         console.log(response);
         if (response) {
           //save credentials
           dispatch(login(response));
-          setState({...state, loading: false});
+          setState({ ...state, loading: false });
           return;
         }
       }
@@ -64,7 +64,7 @@ const Login = ({navigation}) => {
             <AppText error text={errors?.email} />
           </View>
         )}
-        <View style={{height: 20}} />
+        <View style={{ height: 20 }} />
         <View style={styles.topic}>
           <AppText text="Password" />
         </View>
@@ -90,7 +90,7 @@ const Login = ({navigation}) => {
         )}
         <View style={styles.space} />
         <AppButton
-          text={state.loading ? 'Please wait...' : 'Continue'}
+          text={state.loading ? 'Please wait...' : 'Log In'}
           action={authenticate}
         />
       </View>
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     fontFamily: 'ClashGrotesk',
   },
-  space: {height: 8},
+  space: { height: 8 },
   topic: {
     marginBottom: 10,
   },

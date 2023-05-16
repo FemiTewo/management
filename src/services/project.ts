@@ -1,4 +1,4 @@
-import {db, fieldValue} from './firebaseConfig';
+import { db, fieldValue } from './firebaseConfig';
 
 export const getProjects = async (id: string) => {
   const docRef = db.collection('users').doc(id);
@@ -46,7 +46,7 @@ export const getBoards = async (id: string) => {
             },
           ),
         );
-        let finalData = {members: [], boards: []};
+        let finalData = { members: [], boards: [] };
         referencedDocs.map(item => {
           if ((item as Object).hasOwnProperty('email')) {
             return finalData.members.push(item);
@@ -123,12 +123,10 @@ export const getTasksFromBoard = async (id: string) => {
             const rs = await ref.get();
             let rsData = rs.data();
             rsData.id = rs.id;
-            const us = await rsData.assigned_to.get();
-            const usData = us.data();
-            delete usData.projects;
+
             delete rsData.tasks;
             delete rsData.messages;
-            return {...rsData, assigned_to: usData};
+            return { ...rsData };
           }),
         );
         return referencedDocs;
@@ -158,7 +156,7 @@ export const getUserFromTask = async (id: string) => {
             delete rsData.tags;
             delete user.project;
             delete rsData.user;
-            return {message: rsData, user};
+            return { message: rsData, user };
           }),
         );
         return referencedDocs;
@@ -271,7 +269,7 @@ export const changeTaskStatus = async (
   status: 'To-do' | 'In Progress' | 'Quality Assurance' | 'Done' | 'Deleted',
 ) => {
   try {
-    await db.collection('tasks').doc(task).update({status});
+    await db.collection('tasks').doc(task).update({ status });
     return true;
   } catch (e) {
     console.log(e);
@@ -299,6 +297,37 @@ export const saveMessage = async (
       .update({
         messages: fieldValue.arrayUnion(
           db.doc(`messages/${newMessageDoc?.id}`),
+        ),
+      });
+    return true;
+  } catch (e) {
+    return false;
+    console.log(e);
+  }
+};
+export const saveTask = async (
+  task: any,
+  board: string
+) => {
+  let concat: any[] = [];
+  if (task.assigned_to.length > 0) {
+    task.assigned_to.map((t: string) => {
+      concat.push(db.doc(`users/${t}`));
+    });
+  }
+  try {
+    const data = {
+      ...task, messages: [],
+      assigned_to: concat
+    };
+    let newTaskDoc = await db.collection('tasks').add(data);
+    console.log(newTaskDoc);
+    await db
+      .collection('boards')
+      .doc(board)
+      .update({
+        tasks: fieldValue.arrayUnion(
+          db.doc(`tasks/${newTaskDoc?.id}`),
         ),
       });
     return true;
