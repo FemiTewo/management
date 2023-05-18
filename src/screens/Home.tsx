@@ -15,7 +15,7 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import {useTheme} from '@react-navigation/native';
 
-const Home = ({navigation}) => {
+const Home = ({navigation}: {navigation: any}) => {
   const [state, setState] = React.useState({
     loading: false,
   });
@@ -39,7 +39,7 @@ const Home = ({navigation}) => {
           action={() => {}}
           icon={
             <View style={{marginRight: 10}}>
-              <Feather name="plus" size={28} color={colors.icon} />
+              <Feather name="plus" size={28} color="#666" />
             </View>
           }
         />
@@ -49,7 +49,7 @@ const Home = ({navigation}) => {
         <TouchableWithoutFeedback onPress={() => navigation.navigate('team')}>
           <View style={styles.drop}>
             <View style={styles.icon}>
-              <SimpleLineIcons name="docs" size={28} color={colors.icon} />
+              <SimpleLineIcons name="docs" size={28} color="#666" />
             </View>
             <View>
               <AppText text="Project 1" />
@@ -60,7 +60,7 @@ const Home = ({navigation}) => {
         <TouchableWithoutFeedback>
           <View style={styles.drop}>
             <View style={styles.icon}>
-              <SimpleLineIcons name="docs" size={28} color={colors.icon} />
+              <SimpleLineIcons name="docs" size={28} color="#666" />
             </View>
             <View>
               <AppText text="Project 2" />
@@ -71,7 +71,7 @@ const Home = ({navigation}) => {
         <TouchableWithoutFeedback>
           <View style={styles.drop}>
             <View style={styles.icon}>
-              <SimpleLineIcons name="docs" size={28} color={colors.icon} />
+              <SimpleLineIcons name="docs" size={28} color="#666" />
             </View>
             <View>
               <AppText text="Project 3" />

@@ -1,55 +1,55 @@
 import React from 'react';
 import Login from './src/screens/Login';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useAppSelector } from './src/redux/hooks';
-import { selectIsLoggedIn } from './src/redux/auth/slice';
-import Home from './src/screens/Home';
-import { Provider } from 'react-redux';
-import { store } from './src/redux/store';
-import SignUp from './src/screens/SignUp';
-import Team from './src/screens/Team';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {useAppSelector} from './src/redux/hooks';
+import {selectIsLoggedIn} from './src/redux/auth/slice';
+import {Provider} from 'react-redux';
+import {store} from './src/redux/store';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Settings from './src/screens/Settings';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { selectTheme } from './src/redux/settings/slice';
-import { DarkModeTheme, LightModeTheme } from './src/settings/themes';
+import {selectTheme} from './src/redux/settings/slice';
+import {DarkModeTheme, LightModeTheme} from './src/settings/themes';
 import Boards from './src/screens/Boards';
 import Tasks from './src/screens/Tasks';
 import Task from './src/screens/Task';
 import CreateTask from './src/screens/CreateTask';
+import CreateBoard from './src/screens/CreateBoard';
+import CreateProject from './src/screens/CreateProject';
+import CreateAccount from './src/screens/CreateAccount';
 
 const Stack = createNativeStackNavigator();
 
 const Tab = createBottomTabNavigator();
 
 const tabs = [
-  {
-    name: 'Home',
-    component: Home,
-    icon: { focused: 'ios-home', plain: 'ios-home-outline' },
-  },
-  {
-    name: 'Projects',
-    component: Team,
-    icon: { focused: 'ios-folder-open', plain: 'ios-folder-open-outline' },
-  },
+  // {
+  //   name: 'Home',
+  //   component: Home,
+  //   icon: {focused: 'ios-home', plain: 'ios-home-outline'},
+  // },
+  // {
+  //   name: 'Projects',
+  //   component: Team,
+  //   icon: {focused: 'ios-folder-open', plain: 'ios-folder-open-outline'},
+  // },
   {
     name: 'Boards',
     component: Boards,
-    icon: { focused: 'ios-clipboard', plain: 'ios-clipboard-outline' },
+    icon: {focused: 'ios-clipboard', plain: 'ios-clipboard-outline'},
   },
   {
     name: 'Settings',
     component: Settings,
-    icon: { focused: 'ios-settings', plain: 'ios-settings-outline' },
+    icon: {focused: 'ios-settings', plain: 'ios-settings-outline'},
   },
 ];
 
 const HomeTabNav = (theme: 'light' | 'dark') => (
   <Tab.Navigator
-    screenOptions={({ route }) => ({
-      tabBarIcon: ({ focused, color, size }) => {
+    screenOptions={({route}) => ({
+      tabBarIcon: ({focused, color, size}) => {
         let iconName;
         iconName = focused
           ? tabs.find(tab => tab.name === route.name)?.icon.focused
@@ -83,16 +83,18 @@ const App = () => {
     <NavigationContainer
       theme={theme === 'light' ? LightModeTheme : DarkModeTheme}>
       {!isAuthenticated ? (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Navigator screenOptions={{headerShown: false}}>
           <Stack.Screen name="login" component={Login} />
-          <Stack.Screen name="signup" component={SignUp} />
+          <Stack.Screen name="CreateAccount" component={CreateAccount} />
         </Stack.Navigator>
       ) : (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Navigator screenOptions={{headerShown: false}}>
           <Stack.Screen name="MainHome" component={() => HomeTabNav(theme)} />
           <Stack.Screen name="Tasks" component={Tasks} />
           <Stack.Screen name="Task" component={Task} />
           <Stack.Screen name="CreateTask" component={CreateTask} />
+          <Stack.Screen name="CreateBoard" component={CreateBoard} />
+          <Stack.Screen name="CreateProject" component={CreateProject} />
         </Stack.Navigator>
       )}
     </NavigationContainer>

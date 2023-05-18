@@ -8,7 +8,7 @@ import {useAppSelector} from '../redux/hooks';
 import {selectUserData} from '../redux/auth/slice';
 import Feather from 'react-native-vector-icons/Feather';
 
-const Team = ({navigation}) => {
+const Team = ({navigation}: {navigation: any}) => {
   const [state, setState] = React.useState({
     loading: false,
   });

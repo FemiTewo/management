@@ -14,7 +14,7 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {selectTheme, switchTheme} from '../redux/settings/slice';
 import {useTheme} from '@react-navigation/native';
 
-const Settings = ({navigation}) => {
+const Settings = ({navigation}: {navigation: any}) => {
   const [state, setState] = React.useState({
     loading: false,
   });
@@ -39,7 +39,7 @@ const Settings = ({navigation}) => {
               <Feather
                 name={theme === 'light' ? 'moon' : 'sun'}
                 size={28}
-                color={colors.icon}
+                color="#666"
               />
             </View>
             <View>
@@ -58,7 +58,7 @@ const Settings = ({navigation}) => {
         <TouchableWithoutFeedback onPress={() => dispatch(logout())}>
           <View style={styles.drop}>
             <View style={[styles.icon, {marginRight: 20, marginLeft: -10}]}>
-              <SimpleLineIcons name="logout" size={28} color={colors.icon} />
+              <SimpleLineIcons name="logout" size={28} color="#666" />
             </View>
             <View>
               <AppText text="Sign Out" />

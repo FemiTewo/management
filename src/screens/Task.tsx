@@ -40,7 +40,7 @@ const Item = ({title, selected, action}: ItemProps) => (
   </TouchableWithoutFeedback>
 );
 
-const Task = ({navigation}) => {
+const Task = ({navigation}: {navigation: any}) => {
   const [messages, setMessages] = React.useState([]);
   const [state, setState] = React.useState({
     taskLoading: false,

@@ -5,28 +5,36 @@ import colors from '../settings/colors';
 import AppButton from '../components/AppButton';
 import AppBody from '../components/AppBody';
 import {useValidation} from '../hooks/useValidation';
-import {completeAuth} from '../services/auth';
+import {completeAuth, saveUserInfo} from '../services/auth';
 import {useAppDispatch} from '../redux/hooks';
 import {login} from '../redux/auth/slice';
+import {useFocusEffect} from '@react-navigation/native';
 
-const Login = ({navigation}) => {
+const CreateAccount = ({navigation}: {navigation: any}) => {
   const [state, setState] = React.useState({
     loading: false,
     error: '',
   });
 
-  const [inputs, errors, blur, update, validate] = useValidation();
+  const [inputs, errors, blur, update, validate, register] = useValidation();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      register(['email', 'first_name', 'last_name', 'user_name', 'password']);
+    }, []),
+  );
+
   const dispatch = useAppDispatch();
 
-  const authenticate = async () => {
+  const create = async () => {
     try {
       if (state.loading) {
         return;
       }
       setState({...state, loading: true});
+      console.log(inputs, errors);
       if (validate()) {
-        const response = await completeAuth(inputs?.email, inputs?.password);
-        console.log(response);
+        const response = await saveUserInfo(inputs);
         if (response) {
           //save credentials
           dispatch(login(response));
@@ -39,6 +47,11 @@ const Login = ({navigation}) => {
         ...state,
         loading: false,
         error: e.message,
+      });
+    } finally {
+      setState({
+        ...state,
+        loading: false,
       });
     }
   };
@@ -65,6 +78,64 @@ const Login = ({navigation}) => {
           </View>
         )}
         <View style={{height: 20}} />
+
+        <View style={styles.topic}>
+          <AppText text="First Name" />
+        </View>
+        <TextInput
+          placeholder="First Name"
+          keyboardType="name-phone-pad"
+          style={styles.textInput}
+          onBlur={() => blur('first_name')}
+          onChangeText={(text: string) => {
+            update(text, 'first_name');
+          }}
+        />
+        {!!errors?.first_name && (
+          <View>
+            <AppText error text={errors?.first_name} />
+          </View>
+        )}
+        <View style={{height: 20}} />
+
+        <View style={styles.topic}>
+          <AppText text="Last Name" />
+        </View>
+        <TextInput
+          placeholder="Last Name"
+          keyboardType="name-phone-pad"
+          style={styles.textInput}
+          onBlur={() => blur('last_name')}
+          onChangeText={(text: string) => {
+            update(text, 'last_name');
+          }}
+        />
+        {!!errors?.last_name && (
+          <View>
+            <AppText error text={errors?.last_name} />
+          </View>
+        )}
+        <View style={{height: 20}} />
+
+        <View style={styles.topic}>
+          <AppText text="User Name" />
+        </View>
+        <TextInput
+          placeholder="User Name"
+          keyboardType="name-phone-pad"
+          style={styles.textInput}
+          onBlur={() => blur('user_name')}
+          onChangeText={(text: string) => {
+            update(text, 'user_name');
+          }}
+        />
+        {!!errors?.user_name && (
+          <View>
+            <AppText error text={errors?.user_name} />
+          </View>
+        )}
+        <View style={{height: 20}} />
+
         <View style={styles.topic}>
           <AppText text="Password" />
         </View>
@@ -90,23 +161,16 @@ const Login = ({navigation}) => {
         )}
         <View style={styles.space} />
         <AppButton
-          text={state.loading ? 'Please wait...' : 'Log In'}
-          action={authenticate}
+          text={state.loading ? 'Please wait...' : 'Create Account'}
+          action={create}
         />
         <View style={styles.space} />
-        <AppButton
-          alternate
-          text="Create Account"
-          action={() => {
-            navigation.navigate('CreateAccount');
-          }}
-        />
       </View>
     </AppBody>
   );
 };
 
-export default Login;
+export default CreateAccount;
 
 const styles = StyleSheet.create({
   textInput: {

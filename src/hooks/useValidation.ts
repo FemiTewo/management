@@ -1,6 +1,17 @@
 import {useState} from 'react';
 
-export const _ERRORMESSAGES_ = {
+interface ValidationErrors {
+  [field: string]: string;
+}
+
+interface Validations {
+  [field: string]: RegExp;
+}
+
+const ERROR_MESSAGES: {
+  empty: ValidationErrors;
+  regex: ValidationErrors;
+} = {
   empty: {
     amount: 'Amount is required',
     phoneNumber: 'Phone number is required',
@@ -26,9 +37,13 @@ export const _ERRORMESSAGES_ = {
     bundle: 'Select a bundle',
     smartCardNumber: 'Enter smartcard number',
     email: 'Email address is required',
+    first_name: 'First Name is required',
+    last_name: 'Last Name is required',
+    user_name: 'User Name is required',
     emailOrPhone: 'Enter an email address or a phone number',
     fullName: 'Full name is required',
     fplId: 'Enter a valid FPL Manager ID',
+    password: 'Password is required',
   },
   regex: {
     amount: 'Check amount.',
@@ -40,10 +55,22 @@ export const _ERRORMESSAGES_ = {
     emailOrPhone: 'Enter a valid email or phone number',
     fullName: 'Enter a valid full name',
     fplId: 'Enter a valid FPL manager Id',
+    first_name:
+      'First name must:\n' +
+      '- Only contain letters (no spaces or special characters)',
+    last_name:
+      'First name must:\n' +
+      '- Only contain letters (no spaces or special characters)',
+    password:
+      'Password must:\n' +
+      '- Be at least 8 characters long\n' +
+      '- Contain at least one uppercase letter\n' +
+      '- Contain at least one lowercase letter\n' +
+      '- Contain at least one special character (non-alphanumeric)',
   },
 };
 
-export const _VALIDATIONS_ = {
+const VALIDATIONS: Validations = {
   amount: /^\d+(\.\d{2})?$/,
   phoneNumber: /^0(7|8|9)(0|1)\d{8}/,
   referrerNo: /^0(7|8|9)(0|1)\d{8}/,
@@ -54,52 +81,84 @@ export const _VALIDATIONS_ = {
     /(^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$)|^0(7|8|9)(0|1)\d{8}/,
   fullName: /^[A-Za-z\s]*$/,
   fplId: /^\d{3,10}$/,
+  first_name: /^[A-Za-z]+$/,
+  last_name: /^[A-Za-z]+$/,
+  password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).+$/,
 };
 
 export function useValidation() {
-  const [inputs, setInputs] = useState();
-  const [errors, setErrors] = useState();
-  const validationFn = (field: string) => {
-    if (inputs === undefined || errors === undefined) {
-      return;
-    }
-    if ((!inputs[field] || inputs[field] === null) && inputs?.[field] !== 0) {
-      setErrors({...errors, [field]: _ERRORMESSAGES_.empty[field]});
+  const [inputs, setInputs] = useState<{[field: string]: string}>({});
+  const [errors, setErrors] = useState<ValidationErrors>({});
+
+  const validateField = (field: string) => {
+    if (!inputs[field]) {
+      setErrors({
+        ...errors,
+        [field]: ERROR_MESSAGES.empty[field],
+      });
       return false;
     }
-    if (
-      _ERRORMESSAGES_.regex[field] &&
-      !_VALIDATIONS_[field]?.test(inputs[field])
-    ) {
-      setErrors({...errors, [field]: _ERRORMESSAGES_.regex[field]});
+
+    if (VALIDATIONS[field] && !VALIDATIONS[field].test(inputs[field])) {
+      setErrors({
+        ...errors,
+        [field]: ERROR_MESSAGES.regex[field],
+      });
       return false;
     }
+
     return true;
   };
+
   const validateAll = () => {
     if (!inputs) {
       return false;
     }
-    let boolVal = false;
-    Object.keys(inputs).map(k => {
-      boolVal = !!validationFn(k);
+
+    let isValid = true;
+    Object.keys(inputs).forEach(field => {
+      if (!validateField(field)) {
+        isValid = false;
+      }
     });
-    return boolVal;
+
+    return isValid;
   };
 
-  const resetFieldError = (field: any) => {
-    setErrors({...errors, [field]: ''});
+  const resetFieldError = (field: string) => {
+    setErrors({
+      ...errors,
+      [field]: '',
+    });
   };
 
-  const updateField = (text: any, field: any) => {
+  const updateField = (text: string, field: string) => {
     resetFieldError(field);
-    setInputs({...inputs, [field]: text});
+    setInputs({
+      ...inputs,
+      [field]: text,
+    });
   };
+
+  const register = (fields: string[]) => {
+    const initialInputs: {[field: string]: string} = {};
+    const initialErrors: ValidationErrors = {};
+
+    fields.forEach(field => {
+      initialInputs[field] = '';
+      initialErrors[field] = '';
+    });
+
+    setInputs(initialInputs);
+    setErrors(initialErrors);
+  };
+
   return [
     inputs,
     errors,
-    (field: any) => validationFn(field),
-    (text: any, field: any) => updateField(text, field),
+    validateField,
+    updateField,
     validateAll,
-  ];
+    register,
+  ] as const;
 }

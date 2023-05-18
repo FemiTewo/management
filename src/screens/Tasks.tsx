@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import {View, StyleSheet, TouchableWithoutFeedback} from 'react-native';
 import AppText from '../components/AppText';
 import AppButton from '../components/AppButton';
 import AppBody from '../components/AppBody';
 import Feather from 'react-native-vector-icons/Feather';
-import { useTheme } from '@react-navigation/native';
+import {useTheme} from '@react-navigation/native';
 import {
   changeTaskStatus,
   getDatesBetween,
@@ -14,14 +14,14 @@ import {
   min_date,
   months,
 } from '../services/project';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { selectBoard, setTask } from '../redux/projects/slice';
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {selectBoard, setTask} from '../redux/projects/slice';
 import Octicons from 'react-native-vector-icons/Octicons';
-import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
+import ActionSheet, {ActionSheetRef} from 'react-native-actions-sheet';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { ScrollView } from 'react-native-gesture-handler';
+import {ScrollView} from 'react-native-gesture-handler';
 
 const SPACEBETWEENDATES = 30;
 const HEIGHTBETWEENDATES = (x: 5) => {
@@ -61,7 +61,7 @@ const EachTask = ({
       <View style={styles.slide}>
         <View style={styles.drop}>
           <View style={styles.icon}>
-            <Octicons name="tasklist" size={28} color={colors.icon} />
+            <Octicons name="tasklist" size={28} color="#666" />
           </View>
           <View>
             <AppText text={title} />
@@ -73,8 +73,8 @@ const EachTask = ({
   </View>
 );
 
-const Tasks = ({ navigation }) => {
-  const { colors } = useTheme();
+const Tasks = ({navigation}: {navigation: any}) => {
+  const {colors} = useTheme();
   const board = useAppSelector(selectBoard);
   const dispatch = useAppDispatch();
   const [tasks, setTasks] = React.useState<
@@ -90,7 +90,7 @@ const Tasks = ({ navigation }) => {
   const [currentTask, setCurrentTask] = React.useState<{
     id: string;
     status: string;
-  }>({ id: '', status: 'Deleted' });
+  }>({id: '', status: 'Deleted'});
 
   React.useEffect(() => {
     (async () => {
@@ -111,8 +111,8 @@ const Tasks = ({ navigation }) => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState('kanban');
   const [items, setItems] = React.useState([
-    { label: 'Kanban Board', value: 'kanban' },
-    { label: 'Gantt Chart', value: 'gantt' },
+    {label: 'Kanban Board', value: 'kanban'},
+    {label: 'Gantt Chart', value: 'gantt'},
   ]);
 
   // console.log(getDatesBetween(min_date(tasks), max_date(tasks)));
@@ -123,16 +123,16 @@ const Tasks = ({ navigation }) => {
     <>
       <AppBody title={board.title || 'Tasks'} fullView>
         <View style={styles.space} />
-        <View style={{ alignItems: 'flex-start' }}>
+        <View style={{alignItems: 'flex-start'}}>
           <AppButton
             alternate
             text="Create Task"
             action={() => {
-              navigation.navigate("CreateTask")
+              navigation.navigate('CreateTask');
             }}
             icon={
-              <View style={{ marginRight: 10 }}>
-                <Feather name="plus" size={28} color={colors.icon} />
+              <View style={{marginRight: 10}}>
+                <Feather name="plus" size={28} color="#666" />
               </View>
             }
           />
@@ -147,9 +147,9 @@ const Tasks = ({ navigation }) => {
           setItems={setItems}
         />
         <View style={styles.space} />
-        {value === 'gantt' && (
+        {value === 'gantt' && tasks.length > 0 && (
           <>
-            <View style={{ flexDirection: 'row' }}>
+            <View style={{flexDirection: 'row'}}>
               <TouchableWithoutFeedback
                 onPress={() => {
                   setMinimized(!minimized);
@@ -173,9 +173,10 @@ const Tasks = ({ navigation }) => {
               </TouchableWithoutFeedback>
             </View>
             <View style={styles.space} />
-            <View style={{ flexDirection: 'row' }}>
-              <View style={{ marginRight: 10 }}>
-                {tasks.map(({ title, start, end }, tIndex) => {
+
+            <View style={{flexDirection: 'row'}}>
+              <View style={{marginRight: 10}}>
+                {tasks.map(({title, start, end}, tIndex) => {
                   // console.log(end.toISOString().substr(0, 10));
                   return (
                     <View
@@ -265,7 +266,7 @@ const Tasks = ({ navigation }) => {
                               style={{
                                 height:
                                   HEIGHTBETWEENDATES(tasks.length) /
-                                  tasks.length -
+                                    tasks.length -
                                   38,
                               }}
                             />
@@ -274,7 +275,7 @@ const Tasks = ({ navigation }) => {
                       })}
                     </View>
                   </View>
-                  <View style={{ flexDirection: 'row' }}>
+                  <View style={{flexDirection: 'row'}}>
                     {datesBetween &&
                       datesBetween.map((date, index) => {
                         let d = date.split('-')[2];
@@ -321,9 +322,44 @@ const Tasks = ({ navigation }) => {
             </View>
           </>
         )}
-        {value === 'kanban' && (
+
+        {tasks.length === 0 && (
           <>
-            <View style={{ flexDirection: 'row' }}>
+            <View
+              style={{
+                padding: 10,
+                backgroundColor: '#ececec',
+                borderWidth: 1,
+                borderRadius: 4,
+                borderColor: '#cbcbcb',
+              }}>
+              <AppText tiny text="Add a task to see them below." />
+            </View>
+          </>
+        )}
+
+        {value === 'kanban' && tasks.length > 0 && (
+          <>
+            <View style={styles.space} />
+            <View
+              style={{backgroundColor: 'green', padding: 5, borderRadius: 8}}>
+              <AppText
+                tiny
+                strong
+                color="white"
+                text="Press and hold task to edit"
+              />
+            </View>
+            <View style={styles.space} />
+            <View
+              style={{
+                flexDirection: 'row',
+                backgroundColor: '#F0F0F0',
+                paddingVertical: 8,
+                borderRadius: 4,
+                borderWidth: 1,
+                borderColor: '#cfcfcf',
+              }}>
               <TouchableWithoutFeedback
                 onPress={() => {
                   setActive('To-do');
@@ -386,7 +422,7 @@ const Tasks = ({ navigation }) => {
                 </View>
               </TouchableWithoutFeedback>
             </View>
-            <View style={{ height: 10 }} />
+            <View style={{height: 10}} />
             <View style={styles.slide}>
               <View>
                 {tasks
@@ -395,18 +431,18 @@ const Tasks = ({ navigation }) => {
                       task?.status === active && task?.status !== 'Deleted',
                   )
                   .map(task => {
-                    const { id, title, description, status } = task;
+                    const {id, title, description, status} = task;
                     return (
                       <EachTask
                         key={id}
                         title={title}
                         description={description}
                         onPress={() => {
-                          dispatch(setTask({ id, title }));
+                          dispatch(setTask({id, title}));
                           navigation.navigate('Task');
                         }}
                         onLongPress={() => {
-                          setCurrentTask({ id, status });
+                          setCurrentTask({id, status});
                           actionSheetRef.current?.show();
                         }}
                         colors={colors}
@@ -419,8 +455,8 @@ const Tasks = ({ navigation }) => {
         )}
       </AppBody>
       <ActionSheet ref={actionSheetRef}>
-        <View style={{ marginBottom: 30 }}>
-          <View style={{ padding: 10 }}>
+        <View style={{marginBottom: 30}}>
+          <View style={{padding: 10}}>
             <AppText strong text="Set Task Status" />
           </View>
           <View>
@@ -440,9 +476,9 @@ const Tasks = ({ navigation }) => {
                       thisTask,
                     ]);
 
-                    setCurrentTask({ ...currentTask, status });
+                    setCurrentTask({...currentTask, status});
                   }}>
-                  <View style={{ padding: 10, flexDirection: 'row' }}>
+                  <View style={{padding: 10, flexDirection: 'row'}}>
                     <>
                       {status === currentTask.status ? (
                         <SimpleLineIcons name="check" size={24} />
@@ -454,7 +490,7 @@ const Tasks = ({ navigation }) => {
                       )}
                       <View width={10} />
                     </>
-                    <View style={{ justifyContent: 'center' }}>
+                    <View style={{justifyContent: 'center'}}>
                       <AppText text={status} />
                     </View>
                   </View>
@@ -462,7 +498,7 @@ const Tasks = ({ navigation }) => {
               ),
             )}
           </View>
-          <View style={{ padding: 10 }}>
+          <View style={{padding: 10}}>
             <AppText strong text="Actions" />
           </View>
           <View>
@@ -471,9 +507,9 @@ const Tasks = ({ navigation }) => {
                 actionSheetRef.current?.hide();
                 deleteActionSheetRef.current?.show();
               }}>
-              <View style={{ padding: 10, flexDirection: 'row' }}>
+              <View style={{padding: 10, flexDirection: 'row'}}>
                 <SimpleLineIcons name="trash" size={24} />
-                <View style={{ marginLeft: 10, justifyContent: 'center' }}>
+                <View style={{marginLeft: 10, justifyContent: 'center'}}>
                   <AppText text="Delete" />
                 </View>
               </View>
@@ -482,8 +518,8 @@ const Tasks = ({ navigation }) => {
         </View>
       </ActionSheet>
       <ActionSheet ref={deleteActionSheetRef}>
-        <View style={{ marginBottom: 30 }}>
-          <View style={{ padding: 10 }}>
+        <View style={{marginBottom: 30}}>
+          <View style={{padding: 10}}>
             <AppText strong text="Are you sure you want to delete?" />
           </View>
           <View>
@@ -507,9 +543,9 @@ const Tasks = ({ navigation }) => {
                 deleteActionSheetRef.current?.hide();
                 actionSheetRef.current?.hide();
               }}>
-              <View style={{ padding: 10, flexDirection: 'row' }}>
+              <View style={{padding: 10, flexDirection: 'row'}}>
                 <Ionicons name="md-radio-button-off-outline" size={24} />
-                <View style={{ marginLeft: 10, justifyContent: 'center' }}>
+                <View style={{marginLeft: 10, justifyContent: 'center'}}>
                   <AppText text="Yes" />
                 </View>
               </View>
@@ -521,9 +557,9 @@ const Tasks = ({ navigation }) => {
                 deleteActionSheetRef.current?.hide();
                 actionSheetRef.current?.show();
               }}>
-              <View style={{ padding: 10, flexDirection: 'row' }}>
+              <View style={{padding: 10, flexDirection: 'row'}}>
                 <Ionicons name="md-radio-button-off-outline" size={24} />
-                <View style={{ marginLeft: 10, justifyContent: 'center' }}>
+                <View style={{marginLeft: 10, justifyContent: 'center'}}>
                   <AppText text="No" />
                 </View>
               </View>
@@ -543,7 +579,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     flexDirection: 'row',
   },
-  space: { height: 8 },
+  space: {height: 8},
   topic: {
     marginBottom: 10,
   },

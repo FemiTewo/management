@@ -37,6 +37,7 @@ export const completeAuth = async (email: string, password: string) => {
     throw e;
   }
 };
+
 export const getUserData = async (fplId: string) => {
   try {
     const response = await db.collection('users').doc(fplId).get();
@@ -52,18 +53,14 @@ export const getUserData = async (fplId: string) => {
     console.log('An error occurred', e);
   }
 };
-export const saveUserInfo = async (
-  fplId: string,
-  password: string,
-  name: string,
-) => {
+
+export const saveUserInfo = async (inputs: {[x: string]: string}) => {
   try {
-    await db.collection('users').doc(fplId).set({
-      id: fplId,
-      name,
-      password,
+    const newUserDoc = await db.collection('users').add({
+      ...inputs,
+      projects: [],
     });
-    return true;
+    return {newUserDoc, id: newUserDoc?.id};
   } catch (e) {
     console.log('An error occurred', e);
     return false;

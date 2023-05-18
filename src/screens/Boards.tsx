@@ -10,7 +10,9 @@ import AppText from '../components/AppText';
 import AppButton from '../components/AppButton';
 import AppBody from '../components/AppBody';
 import Feather from 'react-native-vector-icons/Feather';
-import {useTheme} from '@react-navigation/native';
+import Entypo from 'react-native-vector-icons/Entypo';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import {useFocusEffect, useTheme} from '@react-navigation/native';
 import {getBoards, getProjects} from '../services/project';
 import {useAppDispatch, useAppSelector} from '../redux/hooks';
 import {selectUserData} from '../redux/auth/slice';
@@ -21,7 +23,7 @@ import {
   setProjectMembers,
 } from '../redux/projects/slice';
 
-const Boards = ({navigation}) => {
+const Boards = ({navigation}: {navigation: any}) => {
   const [active, setActive] = React.useState<number | null>();
   const [boards, setBoards] = React.useState([]);
   const [state, setState] = React.useState({
@@ -29,48 +31,67 @@ const Boards = ({navigation}) => {
     boardLoading: false,
   });
 
-  const {colors} = useTheme();
   const user = useAppSelector(selectUserData);
   const dispatch = useAppDispatch();
   const projects = useAppSelector(selectProjects);
 
-  React.useEffect(() => {
-    (async () => {
-      setState({...state, projectLoading: true});
-      let response = await getProjects(user.id);
-      if (response) {
-        dispatch(loadProjects(response));
-      }
-      setState({...state, projectLoading: false});
-    })();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      (async () => {
+        setState({...state, projectLoading: true});
+        let response = await getProjects(user.id);
+        console.log(response, 'new response');
+        if (response) {
+          dispatch(loadProjects(response));
+        }
+        setState({...state, projectLoading: false});
+      })();
+    }, []),
+  );
 
-  React.useEffect(() => {
-    if (!active && active !== 0) return;
-    (async () => {
-      setState({...state, boardLoading: true});
-      let response = await getBoards(projects[active].id);
-      if (response) {
-        setBoards(response.boards);
-        dispatch(setProjectMembers(response.members));
-      }
-      setState({...state, boardLoading: false});
-    })();
-  }, [active]);
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!active && active !== 0) return;
+      (async () => {
+        setState({...state, boardLoading: true});
+        let response = await getBoards(projects[active].id);
+        if (response) {
+          setBoards(response.boards);
+          dispatch(setProjectMembers(response.members));
+        }
+        setState({...state, boardLoading: false});
+      })();
+    }, [active]),
+  );
 
   return (
     <AppBody title="Boards" fullView>
       {state?.loading && <ActivityIndicator />}
 
       <View style={styles.space} />
-      <View style={{alignItems: 'flex-start'}}>
+      <View style={{alignItems: 'flex-start', flexDirection: 'row'}}>
+        <AppButton
+          alternate
+          text="Create Project"
+          action={() => {
+            navigation.navigate('CreateProject');
+          }}
+          icon={
+            <View style={{marginRight: 10}}>
+              <AntDesign name="addfolder" size={28} color="#666" />
+            </View>
+          }
+        />
+        <View style={{width: 10}} />
         <AppButton
           alternate
           text="Create Board"
-          action={() => {}}
+          action={() => {
+            navigation.navigate('CreateBoard');
+          }}
           icon={
             <View style={{marginRight: 10}}>
-              <Feather name="plus" size={28} color={colors.icon} />
+              <Entypo name="add-to-list" size={28} color="#666" />
             </View>
           }
         />
@@ -89,7 +110,7 @@ const Boards = ({navigation}) => {
             }>
             <View style={styles.drop}>
               <View style={styles.icon}>
-                <Feather name="briefcase" size={28} color={colors.icon} />
+                <AntDesign name="folder1" size={28} color="#666" />
               </View>
               <View>
                 <AppText text={project.title} />
@@ -97,11 +118,6 @@ const Boards = ({navigation}) => {
               </View>
             </View>
           </TouchableWithoutFeedback>
-          {state.boardLoading && (
-            <View style={[styles.drop, {marginLeft: 34}]}>
-              <ActivityIndicator />
-            </View>
-          )}
           {active === index && (
             <>
               {boards &&
@@ -113,14 +129,19 @@ const Boards = ({navigation}) => {
                     }}>
                     <View style={[styles.drop, {marginLeft: 34}]}>
                       <View style={styles.icon}>
-                        <Feather
-                          name="clipboard"
-                          size={24}
-                          color={colors.icon}
-                        />
+                        <AntDesign name="folderopen" size={28} color="#666" />
                       </View>
                       <View>
-                        <AppText text={board.title} />
+                        <View>
+                          <AppText text={board.title} color="#000000" />
+                        </View>
+                        <View>
+                          <AppText
+                            tiny
+                            text={board.description}
+                            color="#666666"
+                          />
+                        </View>
                       </View>
                     </View>
                   </TouchableWithoutFeedback>

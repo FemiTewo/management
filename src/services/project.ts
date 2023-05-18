@@ -1,4 +1,4 @@
-import { db, fieldValue } from './firebaseConfig';
+import {db, fieldValue} from './firebaseConfig';
 
 export const getProjects = async (id: string) => {
   const docRef = db.collection('users').doc(id);
@@ -7,6 +7,9 @@ export const getProjects = async (id: string) => {
       const doc = await docRef.get();
       if (doc.exists) {
         const referenceArray = (doc.data() as any).projects;
+        // if (referenceArray.length > 0) {
+        //   return;
+        // }
         const referencedDocs = await Promise.all(
           referenceArray.map(async (ref: any) => {
             const rs = await ref.get();
@@ -22,7 +25,7 @@ export const getProjects = async (id: string) => {
         console.log('Document does not exist');
       }
     } catch (error) {
-      console.log('Error retrieving document:', error);
+      console.log('Error retrieving document in projects:', error);
     }
   }
 };
@@ -46,7 +49,7 @@ export const getBoards = async (id: string) => {
             },
           ),
         );
-        let finalData = { members: [], boards: [] };
+        let finalData = {members: [], boards: []};
         referencedDocs.map(item => {
           if ((item as Object).hasOwnProperty('email')) {
             return finalData.members.push(item);
@@ -59,7 +62,7 @@ export const getBoards = async (id: string) => {
         console.log('Document does not exist');
       }
     } catch (error) {
-      console.log('Error retrieving document:', error);
+      console.log('Error retrieving document in getBoards:', error);
     }
   }
 };
@@ -126,7 +129,7 @@ export const getTasksFromBoard = async (id: string) => {
 
             delete rsData.tasks;
             delete rsData.messages;
-            return { ...rsData };
+            return {...rsData};
           }),
         );
         return referencedDocs;
@@ -156,7 +159,7 @@ export const getUserFromTask = async (id: string) => {
             delete rsData.tags;
             delete user.project;
             delete rsData.user;
-            return { message: rsData, user };
+            return {message: rsData, user};
           }),
         );
         return referencedDocs;
@@ -183,15 +186,6 @@ export const months = [
   'Nov',
   'Dec',
 ];
-
-const getRandomColor = () => {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-};
 
 export const getDeepColors = () => {
   return [
@@ -269,7 +263,7 @@ export const changeTaskStatus = async (
   status: 'To-do' | 'In Progress' | 'Quality Assurance' | 'Done' | 'Deleted',
 ) => {
   try {
-    await db.collection('tasks').doc(task).update({ status });
+    await db.collection('tasks').doc(task).update({status});
     return true;
   } catch (e) {
     console.log(e);
@@ -301,14 +295,11 @@ export const saveMessage = async (
       });
     return true;
   } catch (e) {
-    return false;
     console.log(e);
+    return false;
   }
 };
-export const saveTask = async (
-  task: any,
-  board: string
-) => {
+export const saveTask = async (task: any, board: string) => {
   let concat: any[] = [];
   if (task.assigned_to.length > 0) {
     task.assigned_to.map((t: string) => {
@@ -317,8 +308,9 @@ export const saveTask = async (
   }
   try {
     const data = {
-      ...task, messages: [],
-      assigned_to: concat
+      ...task,
+      messages: [],
+      assigned_to: concat,
     };
     let newTaskDoc = await db.collection('tasks').add(data);
     console.log(newTaskDoc);
@@ -326,13 +318,54 @@ export const saveTask = async (
       .collection('boards')
       .doc(board)
       .update({
-        tasks: fieldValue.arrayUnion(
-          db.doc(`tasks/${newTaskDoc?.id}`),
-        ),
+        tasks: fieldValue.arrayUnion(db.doc(`tasks/${newTaskDoc?.id}`)),
       });
     return true;
   } catch (e) {
-    return false;
     console.log(e);
+    return false;
+  }
+};
+export const saveBoard = async (boardInput: any, project: string) => {
+  try {
+    delete boardInput.project;
+    const data = {
+      ...boardInput,
+      tasks: [],
+    };
+    let newBoardDoc = await db.collection('boards').add(data);
+
+    await db
+      .collection('projects')
+      .doc(project)
+      .update({
+        boards: fieldValue.arrayUnion(db.doc(`boards/${newBoardDoc?.id}`)),
+      });
+    return true;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+};
+
+export const saveProject = async (project: any, user: string) => {
+  try {
+    const data = {
+      ...project,
+      boards: [],
+      members: [],
+    };
+    let newBoardDoc = await db.collection('projects').add(data);
+
+    await db
+      .collection('users')
+      .doc(user)
+      .update({
+        projects: fieldValue.arrayUnion(db.doc(`projects/${newBoardDoc?.id}`)),
+      });
+    return true;
+  } catch (e) {
+    console.log(e);
+    return false;
   }
 };
