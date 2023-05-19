@@ -4,7 +4,7 @@ import AppText from '../components/AppText';
 import AppButton from '../components/AppButton';
 import AppBody from '../components/AppBody';
 import Feather from 'react-native-vector-icons/Feather';
-import {useTheme} from '@react-navigation/native';
+import {useFocusEffect, useTheme} from '@react-navigation/native';
 import {
   changeTaskStatus,
   getDatesBetween,
@@ -92,14 +92,16 @@ const Tasks = ({navigation}: {navigation: any}) => {
     status: string;
   }>({id: '', status: 'Deleted'});
 
-  React.useEffect(() => {
-    (async () => {
-      let response = await getTasksFromBoard(board.id);
-      if (response) {
-        setTasks(response);
-      }
-    })();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      (async () => {
+        let response = await getTasksFromBoard(board.id);
+        if (response) {
+          setTasks(response);
+        }
+      })();
+    }, []),
+  );
 
   const [active, setActive] = React.useState<
     'To-do' | 'In Progress' | 'Quality Assurance' | 'Done' | 'Deleted'

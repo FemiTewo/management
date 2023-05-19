@@ -1,5 +1,13 @@
 import {db, fieldValue} from './firebaseConfig';
 
+export const getAllUsers = async () => {
+  const snapshot = await db.collection('users').get();
+  return snapshot.docs.map(doc => {
+    const docData = {...doc.data(), id: doc.id};
+    delete docData.projects;
+    return docData;
+  });
+};
 export const getProjects = async (id: string) => {
   const docRef = db.collection('users').doc(id);
   if (docRef) {
@@ -258,12 +266,62 @@ export function getDatesBetween(startDate: string, endDate: string) {
   return dates;
 }
 
+export const changeBoardStatus = async (
+  board: string,
+  status: 'Ongoing' | 'Compleeted' | 'Deleted',
+) => {
+  try {
+    await db.collection('board').doc(board).update({status});
+    return true;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+};
 export const changeTaskStatus = async (
   task: string,
   status: 'To-do' | 'In Progress' | 'Quality Assurance' | 'Done' | 'Deleted',
 ) => {
   try {
     await db.collection('tasks').doc(task).update({status});
+    return true;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+};
+
+export const changeProjectStatus = async (
+  task: string,
+  status: 'Ongoing' | 'Completed',
+) => {
+  try {
+    await db.collection('projects').doc(task).update({status});
+    return true;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+};
+
+export const changeProjectDetails = async (project: string, data: any) => {
+  try {
+    delete data.id;
+    await db.collection('projects').doc(project).update({data});
+    return true;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+};
+
+export const changeBoardDetails = async (board: string, data: any) => {
+  try {
+    delete data.id;
+    await db
+      .collection('boards')
+      .doc(board)
+      .update({...data});
     return true;
   } catch (e) {
     console.log(e);
@@ -363,6 +421,21 @@ export const saveProject = async (project: any, user: string) => {
       .update({
         projects: fieldValue.arrayUnion(db.doc(`projects/${newBoardDoc?.id}`)),
       });
+    return true;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+};
+
+export const saveTeamMembers = async (project: string, team: any[]) => {
+  try {
+    const data = {
+      members: [...team.map(member => db.doc(`users/${member.id}`))],
+    };
+    await db.collection('projects').doc(project).update({
+      members: data.members,
+    });
     return true;
   } catch (e) {
     console.log(e);
